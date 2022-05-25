@@ -1,4 +1,5 @@
 # from freecodecamp tutorial: https://www.youtube.com/watch?v=F3J3PZj0zi0
+from math import floor
 import pygame
 from pygame import mixer
 
@@ -30,6 +31,27 @@ playing = True
 active_length = 0
 active_beat = 0 # 1, 2, 3, 4... doesn't really start from 0 irl but the loop has to start at column 0
 beat_changed = True
+
+# load in sounds
+clap = mixer.Sound('sounds\clap.WAV')
+hi_hat = mixer.Sound('sounds\hi hat.WAV')
+crash = mixer.Sound('sounds\crash.WAV')
+snare = mixer.Sound('sounds\snare.WAV')
+floor_tom = mixer.Sound('sounds\\floor tom.WAV')
+bass = mixer.Sound('sounds\\bass.WAV')
+pygame.mixer.set_num_channels(num_instruments * 3) 
+# default is 8 channels, but some WAV files take more loops to finish (worse at higher BPM)
+
+
+def play_notes():
+    for i in range(len(clicked)):
+        if clicked[i][active_beat] == 1:
+            if i == 0: clap.play()
+            if i == 1: hi_hat.play()
+            if i == 2: crash.play()
+            if i == 3: snare.play()
+            if i == 4: floor_tom.play()
+            if i == 5: bass.play()
 
 
 def draw_grid(clicks, beat):
@@ -102,6 +124,10 @@ while run:
     timer.tick(fps)
     screen.fill(black)
     boxes = draw_grid(clicked, active_beat)
+
+    if beat_changed:
+        play_notes()
+        beat_changed = False
 
     # check keyboard/mouse input
     for event in pygame.event.get():

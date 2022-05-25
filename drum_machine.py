@@ -26,8 +26,9 @@ timer = pygame.time.Clock()
 num_instruments = 6
 num_beats = 8
 boxes = []
+# this fills a list full of -1, to show whether a box was clicked:
 clicked =  [[-1 for _ in range(num_beats)] for _ in range(num_instruments)]
-# this fills a list full of -1, to show whether a box was clicked
+active_list = [1 for _ in range(num_instruments)]
 bpm = 240
 playing = True
 active_length = 0
@@ -36,7 +37,7 @@ beat_changed = True
 
 # load in sounds
 clap = mixer.Sound('sounds\clap.WAV')
-ride = mixer.Sound('sounds\\ride.WAV')
+crash = mixer.Sound('sounds\crash.WAV')
 hi_hat = mixer.Sound('sounds\hi hat.WAV')
 snare = mixer.Sound('sounds\snare.WAV')
 floor_tom = mixer.Sound('sounds\\floor tom.WAV')
@@ -47,16 +48,16 @@ pygame.mixer.set_num_channels(num_instruments * 3)
 
 def play_notes():
     for i in range(len(clicked)):
-        if clicked[i][active_beat] == 1:
+        if clicked[i][active_beat] == 1 and active_list[i] == 1:
             if i == 0: clap.play()
-            if i == 1: ride.play()
+            if i == 1: crash.play()
             if i == 2: hi_hat.play()
             if i == 3: snare.play()
             if i == 4: floor_tom.play()
             if i == 5: bass.play()
 
 
-def draw_grid(clicks, beat):
+def draw_grid(clicks, beat, actives):
     left_box = pygame.draw.rect(screen, gray, [0, 0, 200, HEIGHT-200], 5) 
     # 0,0 is top left corner, 200 is width, 5 is how wide edges are
     bottom_box = pygame.draw.rect(screen, gray, [0, HEIGHT-200, WIDTH, 200], 5)
@@ -65,17 +66,17 @@ def draw_grid(clicks, beat):
     colors = [gray, white, gray] # idk why this and no black
 
     # TODO: make this programmatically set, vary heights by num_instruments
-    clap_text       = label_font.render('Clap', True, white) # True for anti-alias
+    clap_text       = label_font.render('Clap', True, colors[actives[0]]) # True for anti-alias
     screen.blit(clap_text,      (30, 30)) # blit displays on screen, (X,Y) location
-    ride_text      = label_font.render('Ride', True, white)
-    screen.blit(ride_text,     (30, 130))
-    hi_hat_text     = label_font.render('Hi Hat', True, white)
+    crash      = label_font.render('Crash', True, colors[actives[1]])
+    screen.blit(crash,     (30, 130))
+    hi_hat_text     = label_font.render('Hi Hat', True, colors[actives[2]])
     screen.blit(hi_hat_text,    (30, 230))
-    snare_text      = label_font.render('Snare', True, white)
+    snare_text      = label_font.render('Snare', True, colors[actives[3]])
     screen.blit(snare_text,     (30, 330))
-    floor_tom_text  = label_font.render('Floor Tom', True, white)
+    floor_tom_text  = label_font.render('Floor Tom', True, colors[actives[4]])
     screen.blit(floor_tom_text, (30, 430))
-    bass_text       = label_font.render('Bass Drum', True, white)
+    bass_text       = label_font.render('Bass Drum', True, colors[actives[5]])
     screen.blit(bass_text,      (30, 530))
 
     for i in range(num_instruments):
@@ -88,7 +89,10 @@ def draw_grid(clicks, beat):
             if clicks[j][i] == -1:
                 color = gray
             else:
-                color = green
+                if actives[j] == 1:
+                    color = green
+                else:
+                    color = dark_gray
             # start at beat (at 200), calc available space on screen, update based on num_instr/beats
             rect = pygame.draw.rect(screen, color, \
                 [i * ((WIDTH - 200) // num_beats) + 205, \
@@ -125,7 +129,7 @@ run = True
 while run:
     timer.tick(fps)
     screen.fill(black)
-    boxes = draw_grid(clicked, active_beat)
+    boxes = draw_grid(clicked, active_beat, active_list)
 
     # lower menu buttons
     play_pause = pygame.draw.rect(screen, gray, [50, HEIGHT-150, 200, 100], 0, 5) # 5 for rounded
@@ -163,6 +167,12 @@ while run:
     screen.blit(add_text, (820, HEIGHT-140))
     screen.blit(sub_text, (820, HEIGHT-90))
 
+    # instrument rects
+    instrument_rects = []
+    for i in range(num_instruments):
+        rect = pygame.rect.Rect((0, i*100), (200, 100))
+        instrument_rects.append(rect)
+
     if beat_changed:
         play_notes()
         beat_changed = False
@@ -195,6 +205,9 @@ while run:
                 num_beats -= 1
                 for i in range(len(clicked)):
                     clicked[i].pop(-1)
+            for i in range(len(instrument_rects)):
+                if instrument_rects[i].collidepoint(event.pos):
+                    active_list[i] *= -1
 
     beat_length = 3600 // bpm # clicks per minute - fps*60
 

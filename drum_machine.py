@@ -12,6 +12,7 @@ white = (255, 255, 255)
 gray = (128, 128, 128)
 green = (0, 255, 0) # active
 purple = (128, 0, 128) # rim around beat boxes
+blue = (0, 255, 255) # for active beat
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption('Drummasheen')
@@ -24,9 +25,14 @@ num_beats = 8
 boxes = []
 clicked =  [[-1 for _ in range(num_beats)] for _ in range(num_instruments)]
 # this fills a list full of -1, to show whether a box was clicked
+bpm = 240
+playing = True
+active_length = 0
+active_beat = 0 # 1, 2, 3, 4... doesn't really start from 0 irl but the loop has to start at column 0
+beat_changed = True
 
 
-def draw_grid(clicks):
+def draw_grid(clicks, beat):
     left_box = pygame.draw.rect(screen, gray, [0, 0, 200, HEIGHT-200], 5) 
     # 0,0 is top left corner, 200 is width, 5 is how wide edges are
     bottom_box = pygame.draw.rect(screen, gray, [0, HEIGHT-200, WIDTH, 200], 5)
@@ -81,6 +87,12 @@ def draw_grid(clicks):
                 2, 5)
             # return each beat, plus its coordinates, will use for collision detection
             boxes.append((rect, (i, j)))
+
+        
+        active = pygame.draw.rect(screen, blue, \
+            [beat * ((WIDTH-200)//num_beats) + 200, 0, \
+            ((WIDTH-200)//num_beats), num_instruments*100], 5, 5)
+
     return boxes
 
 
@@ -89,7 +101,7 @@ run = True
 while run:
     timer.tick(fps)
     screen.fill(black)
-    boxes = draw_grid(clicked)
+    boxes = draw_grid(clicked, active_beat)
 
     # check keyboard/mouse input
     for event in pygame.event.get():
@@ -101,6 +113,20 @@ while run:
                 if boxes[i][0].collidepoint(event.pos):
                     coords = boxes[i][1]
                     clicked[coords[1]][coords[0]] *= -1
+
+    beat_length = 3600 // bpm # clicks per minute - fps*60
+
+    if playing:
+        if active_length < beat_length:
+            active_length += 1
+        else: # beat as long as its supposed to be
+            active_length = 0
+            if active_beat < num_beats-1:
+                active_beat += 1
+                beat_changed = True
+            else: # not at the end of loop or went too far
+                active_beat = 0
+                beat_changed = True
 
     pygame.display.flip()
 

@@ -36,8 +36,8 @@ beat_changed = True
 
 # load in sounds
 clap = mixer.Sound('sounds\clap.WAV')
+ride = mixer.Sound('sounds\\ride.WAV')
 hi_hat = mixer.Sound('sounds\hi hat.WAV')
-crash = mixer.Sound('sounds\crash.WAV')
 snare = mixer.Sound('sounds\snare.WAV')
 floor_tom = mixer.Sound('sounds\\floor tom.WAV')
 bass = mixer.Sound('sounds\\bass.WAV')
@@ -49,8 +49,8 @@ def play_notes():
     for i in range(len(clicked)):
         if clicked[i][active_beat] == 1:
             if i == 0: clap.play()
-            if i == 1: hi_hat.play()
-            if i == 2: crash.play()
+            if i == 1: ride.play()
+            if i == 2: hi_hat.play()
             if i == 3: snare.play()
             if i == 4: floor_tom.play()
             if i == 5: bass.play()
@@ -67,10 +67,10 @@ def draw_grid(clicks, beat):
     # TODO: make this programmatically set, vary heights by num_instruments
     clap_text       = label_font.render('Clap', True, white) # True for anti-alias
     screen.blit(clap_text,      (30, 30)) # blit displays on screen, (X,Y) location
+    ride_text      = label_font.render('Ride', True, white)
+    screen.blit(ride_text,     (30, 130))
     hi_hat_text     = label_font.render('Hi Hat', True, white)
-    screen.blit(hi_hat_text,    (30, 130))
-    crash_text      = label_font.render('Crash', True, white)
-    screen.blit(crash_text,     (30, 230))
+    screen.blit(hi_hat_text,    (30, 230))
     snare_text      = label_font.render('Snare', True, white)
     screen.blit(snare_text,     (30, 330))
     floor_tom_text  = label_font.render('Floor Tom', True, white)
@@ -135,7 +135,33 @@ while run:
         play_text2 = medium_font.render('Playing', True, dark_gray)
     else:
         play_text2 = medium_font.render('Paused', True, dark_gray)
-    screen.blit(play_text2, (70, HEIGHT-100))
+    screen.blit(play_text2, (70, HEIGHT-90))
+
+    # bpm stuff
+    bpm_rect = pygame.draw.rect(screen, gray, [300, HEIGHT-150, 200, 100], 5, 5)
+    bpm_text = medium_font.render('Beats Per Minute', True, white)
+    screen.blit(bpm_text, (308, HEIGHT-130))
+    bpm_num_text = label_font.render(f'{bpm}', True, white) # can also do f'BPM:{bpm}'
+    screen.blit(bpm_num_text, (370, HEIGHT-100))
+    bpm_add_rect = pygame.draw.rect(screen, gray, [510, HEIGHT-150, 48, 48], 0, 5)
+    bpm_sub_rect = pygame.draw.rect(screen, gray, [510, HEIGHT-100, 48, 48], 0, 5)
+    add_text = medium_font.render('+5', True, white)
+    sub_text = medium_font.render('-5', True, white)
+    screen.blit(add_text, (520, HEIGHT-140))
+    screen.blit(sub_text, (520, HEIGHT-90))
+
+    # beats stuff
+    beats_rect = pygame.draw.rect(screen, gray, [600, HEIGHT-150, 200, 100], 5, 5)
+    beats_text = medium_font.render('Beats In Loop', True, white)
+    screen.blit(beats_text, (618, HEIGHT-130))
+    beats_text2 = label_font.render(f'{num_beats}', True, white)
+    screen.blit(beats_text2, (680, HEIGHT-100))
+    beats_add_rect = pygame.draw.rect(screen, gray, [810, HEIGHT-150, 48, 48], 0, 5)
+    beats_sub_rect = pygame.draw.rect(screen, gray, [810, HEIGHT-100, 48, 48], 0, 5)
+    add_text = medium_font.render('+1', True, white)
+    sub_text = medium_font.render('-1', True, white)
+    screen.blit(add_text, (820, HEIGHT-140))
+    screen.blit(sub_text, (820, HEIGHT-90))
 
     if beat_changed:
         play_notes()
@@ -157,6 +183,18 @@ while run:
                     playing = False
                 elif not playing:
                     playing = True
+            elif bpm_add_rect.collidepoint(event.pos):
+                bpm += 5
+            elif bpm_sub_rect.collidepoint(event.pos):
+                bpm -= 5
+            elif beats_add_rect.collidepoint(event.pos):
+                num_beats += 1
+                for i in range(len(clicked)):
+                    clicked[i].append(-1)
+            elif beats_sub_rect.collidepoint(event.pos):
+                num_beats -= 1
+                for i in range(len(clicked)):
+                    clicked[i].pop(-1)
 
     beat_length = 3600 // bpm # clicks per minute - fps*60
 

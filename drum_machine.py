@@ -69,7 +69,7 @@ def play_notes():
 def draw_grid(clicks, beat, actives):
     left_box = pygame.draw.rect(screen, gray, [0, 0, 200, HEIGHT-200], 5) 
     # 0,0 is top left corner, 200 is width, 5 is how wide edges are
-    bottom_box = pygame.draw.rect(screen, gray, [0, HEIGHT-200, WIDTH, 200], 5)
+    # bottom_box is printed last to be on top of green active rectangles
     # HEIGHT-200 prevents crisscross
     boxes = []
     colors = [gray, white, gray] # idk why this and no black
@@ -125,14 +125,15 @@ def draw_grid(clicks, beat, actives):
             # return each beat, plus its coordinates, will use for collision detection
             boxes.append((rect, (i, j)))
 
-        
         active = pygame.draw.rect(screen, blue, \
             [beat * ((WIDTH-200)//num_beats) + 200, 0, \
             ((WIDTH-200)//num_beats), num_instruments*100], 5, 5)
 
+    bottom_box = pygame.draw.rect(screen, gray, [0, HEIGHT-200, WIDTH, 200], 5)
+
     return boxes
 
-# TODO: maybe pause playing while menu is open
+
 def draw_save_menu(beat_name, typing):
     pygame.draw.rect(screen, black, [0, 0, WIDTH, HEIGHT])
     menu_text = label_font.render('SAVE MENU: What do you wanna call this banger?', True, white)
@@ -275,7 +276,8 @@ while run:
                 beat_name = ''
                 typing = False
             if entry_rectangle. collidepoint(event.pos):
-                #TODO: typing=false when clicking outside of entry_rectangle
+                #TODO: typing=false when clicking outside of entry_rectangle 
+                # or something more logical than clicking inside the box again
                 if typing:
                     typing = False
                 elif not typing:
@@ -312,3 +314,8 @@ while run:
     pygame.display.flip()
 
 pygame.quit() # just in case
+
+#TODO: reset BPM button
+#TODO: reset beats button
+#TODO: greatly increase/decrease BPM (by 50?)
+#TODO: greatly increase/decrease beats (by 10?)

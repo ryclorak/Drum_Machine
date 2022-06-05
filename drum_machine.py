@@ -15,7 +15,7 @@ gray = (128, 128, 128)
 dark_gray = (50, 50, 50)
 green = (0, 255, 0) # active
 purple = (128, 0, 128) # rim around beat boxes
-blue = (0, 255, 255) # for active beat
+light_blue = (0, 255, 255) # for active beat
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption('Drummasheen')
@@ -53,7 +53,7 @@ hi_hat = mixer.Sound('sounds\hi hat.WAV')
 snare = mixer.Sound('sounds\snare.WAV')
 floor_tom = mixer.Sound('sounds\\floor tom.WAV')
 bass = mixer.Sound('sounds\\bass.WAV')
-pygame.mixer.set_num_channels(num_instruments * 3) 
+pygame.mixer.set_num_channels(num_instruments * 4) 
 # default is 8 channels, but some WAV files take more loops to finish (worse at higher BPM)
 
 
@@ -76,11 +76,10 @@ def draw_grid(clicks, beat, actives):
     boxes = []
     colors = [gray, white, gray] # idk why this and no black
 
-    # TODO: make this programmatically set, vary heights by num_instruments
     clap_text       = label_font.render('Clap', True, colors[actives[0]]) # True for anti-alias
     screen.blit(clap_text,      (30, 30)) # blit displays on screen, (X,Y) location
     crash      = label_font.render('Crash', True, colors[actives[1]])
-    screen.blit(crash,     (30, 130))
+    screen.blit(crash,          (30, 130))
     hi_hat_text     = label_font.render('Hi Hat', True, colors[actives[2]])
     screen.blit(hi_hat_text,    (30, 230))
     snare_text      = label_font.render('Snare', True, colors[actives[3]])
@@ -127,7 +126,7 @@ def draw_grid(clicks, beat, actives):
             # return each beat, plus its coordinates, will use for collision detection
             boxes.append((rect, (i, j)))
 
-        active = pygame.draw.rect(screen, blue, \
+        active = pygame.draw.rect(screen, light_blue, \
             [beat * ((WIDTH-200)//num_beats) + 200, 0, \
             ((WIDTH-200)//num_beats), num_instruments*100], 5, 5)
 
@@ -170,7 +169,7 @@ def draw_load_menu(index):
     screen.blit(load_button_text, (WIDTH//2 -70, HEIGHT*0.87 + 30))
     screen.blit(exit_text, (WIDTH-160, HEIGHT-70))
     screen.blit(delete_button_text, ((WIDTH//2)-485, HEIGHT*0.87 + 30))
-    # draw holding pen
+    # draw bounding box
     loaded_rectangle = pygame.draw.rect(screen, gray, [190, 90, 1000, 600], 5, 5)
     if 0 <= index < len(saved_beats):
         pygame.draw.rect(screen, light_gray, [190, 100+index*50, 1000, 50])
@@ -189,7 +188,7 @@ def draw_load_menu(index):
             loaded_beats = int(saved_beats[beat][name_index_end+8:beat_index_end])
             bpm_index_end = saved_beats[beat].index(', selected: ')
             loaded_bpms = int(saved_beats[beat][beat_index_end+6:bpm_index_end])
-            loaded_clicks_string = saved_beats[beat][bpm_index_end+14:-3] # split strings out, leaving off brackets
+            loaded_clicks_string = saved_beats[beat][bpm_index_end+14:-3] # then split strings out, leaving off brackets
             loaded_clicks_rows = list(loaded_clicks_string.split('], [')) # split - string to list
             for row in range(len(loaded_clicks_rows)):
                 loaded_clicks_row = (loaded_clicks_rows[row].split(', ')) # get individual ints
@@ -375,8 +374,6 @@ while run:
                         load_menu = False
             if save_menu:
                 if entry_rectangle. collidepoint(event.pos):
-                    #TODO: typing=false when clicking outside of entry_rectangle 
-                    # or something more logical than clicking inside the box again
                     if typing:
                         typing = False
                     elif not typing:
@@ -414,6 +411,12 @@ while run:
 
 pygame.quit() # just in case
 
+#TODO: typing=false when clicking outside of entry_rectangle or something more logical than clicking inside the box again
 #TODO: something i cant think of right now...
-#TODO: cleanup/reorganize code to make it more readable
-#TODO: add ability to add more instruments
+#TODO: cleanup/reorganize code to make it more readable/shorter
+#TODO: when beat loaded/saved, display name somewhere? (if saved - drop display of name when something is clicked)
+    #maybe in the title - next to Drummasheen
+#TODO: separate functions out into other files wherever possible, add imports
+#TODO: add ability to change/add/subtract instruments (check sounds folder)
+#TODO: programmatically set heights by num_instruments
+#TODO: display list of names in saved_beats file in save_menu

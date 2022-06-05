@@ -178,7 +178,7 @@ def draw_load_menu(index):
     for beat in range(len(saved_beats)):
         if beat < 10:
             beat_clicked = []
-            row_text = medium_font.render(f'{beat + 1}', True, white) #TODO: make sure im not using base 0
+            row_text = medium_font.render(f'{beat + 1}', True, white)
             screen.blit(row_text, (200, 100 + beat * 50))
             name_index_start = saved_beats[beat].index('name: ') + 6
             name_index_end = saved_beats[beat].index(', beats: ')
@@ -224,38 +224,44 @@ while run:
     bpm_text = medium_font.render('Beats Per Minute', True, white)
     screen.blit(bpm_text, (278, HEIGHT-130))
     bpm_num_text = label_font.render(f'{bpm}', True, white) # can also do f'BPM:{bpm}'
-    screen.blit(bpm_num_text, (340, HEIGHT-100))
+    screen.blit(bpm_num_text, (345, HEIGHT-100))
     bpm_add_rect = pygame.draw.rect(screen, gray, [480, HEIGHT-150, 48, 48], 0, 5)
     bpm_sub_rect = pygame.draw.rect(screen, gray, [480, HEIGHT-100, 48, 48], 0, 5)
     bpm_add_more_rect = pygame.draw.rect(screen, gray, [530, HEIGHT-150, 48, 48], 0, 5)
     bpm_sub_more_rect = pygame.draw.rect(screen, gray, [530, HEIGHT-100, 48, 48], 0, 5)
+    bpm_reset_rect = pygame.draw.rect(screen, gray, [320, HEIGHT-47, 100, 40], 0, 5)
     add_text = medium_font.render('+5', True, white)
     sub_text = medium_font.render('-5', True, white)
     add_more_text = medium_font.render('+50', True, white)
     sub_more_text = medium_font.render('-50', True, white)
+    bpm_reset_text = medium_font.render('Reset', True, white)
     screen.blit(add_text, (490, HEIGHT-140))
     screen.blit(sub_text, (490, HEIGHT-90))
     screen.blit(add_more_text, (535, HEIGHT-140))
     screen.blit(sub_more_text, (535, HEIGHT-90))
+    screen.blit(bpm_reset_text, (339, HEIGHT-43))
 
     # beats stuff
     beats_rect = pygame.draw.rect(screen, gray, [600, HEIGHT-150, 200, 100], 5, 5)
     beats_text = medium_font.render('Beats In Loop', True, white)
-    screen.blit(beats_text, (618, HEIGHT-130))
+    screen.blit(beats_text, (625, HEIGHT-130))
     beats_text2 = label_font.render(f'{num_beats}', True, white)
-    screen.blit(beats_text2, (680, HEIGHT-100))
+    screen.blit(beats_text2, (690, HEIGHT-100))
     beats_add_rect = pygame.draw.rect(screen, gray, [810, HEIGHT-150, 48, 48], 0, 5)
     beats_sub_rect = pygame.draw.rect(screen, gray, [810, HEIGHT-100, 48, 48], 0, 5)
     beats_add_more_rect = pygame.draw.rect(screen, gray, [860, HEIGHT-150, 48, 48], 0, 5)
     beats_sub_more_rect = pygame.draw.rect(screen, gray, [860, HEIGHT-100, 48, 48], 0, 5)
+    beats_reset_rect = pygame.draw.rect(screen, gray, [650, HEIGHT-47, 100, 40], 0, 5)
     add_text = medium_font.render('+1', True, white)
     sub_text = medium_font.render('-1', True, white)
     add_more_text = medium_font.render('+10', True, white)
     sub_more_text = medium_font.render('-10', True, white)
+    beats_reset_text = medium_font.render('Reset', True, white)
     screen.blit(add_text, (820, HEIGHT-140))
     screen.blit(sub_text, (820, HEIGHT-90))
     screen.blit(add_more_text, (865, HEIGHT-140))
     screen.blit(sub_more_text, (865, HEIGHT-90))
+    screen.blit(beats_reset_text, (669, HEIGHT-43))
 
     # instrument rects
     instrument_rects = []
@@ -309,6 +315,8 @@ while run:
                 bpm -= 5
             elif bpm_sub_more_rect.collidepoint(event.pos):
                 bpm -= 50
+            elif bpm_reset_rect.collidepoint(event.pos):
+                bpm = 240
             elif beats_add_rect.collidepoint(event.pos):
                 num_beats += 1
                 for i in range(len(clicked)):
@@ -326,6 +334,16 @@ while run:
                 num_beats -= 10
                 for i in range(len(clicked)):
                     clicked[i].pop(-1)
+            elif beats_reset_rect.collidepoint(event.pos):
+                if num_beats < 8:
+                    num_beats = 8
+                    for i in range(8-num_beats):
+                        for i in range(len(clicked)):
+                            clicked[i].append(-1)
+                if num_beats > 8:
+                    num_beats = 8
+                    for i in range(len(clicked)):
+                        clicked[i].pop(-1)
             elif clear_button.collidepoint(event.pos):
                 clicked = [[-1 for _ in range(num_beats)] for _ in range(num_instruments)]
             elif save_menu_button.collidepoint(event.pos):
@@ -396,5 +414,6 @@ while run:
 
 pygame.quit() # just in case
 
-#TODO: reset BPM button
-#TODO: reset beats button
+#TODO: something i cant think of right now...
+#TODO: cleanup/reorganize code to make it more readable
+#TODO: add ability to add more instruments

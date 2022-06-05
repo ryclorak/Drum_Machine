@@ -220,17 +220,23 @@ while run:
     screen.blit(play_text2, (70, HEIGHT-90))
 
     # bpm stuff
-    bpm_rect = pygame.draw.rect(screen, gray, [300, HEIGHT-150, 200, 100], 5, 5)
+    bpm_rect = pygame.draw.rect(screen, gray, [270, HEIGHT-150, 200, 100], 5, 5)
     bpm_text = medium_font.render('Beats Per Minute', True, white)
-    screen.blit(bpm_text, (308, HEIGHT-130))
+    screen.blit(bpm_text, (278, HEIGHT-130))
     bpm_num_text = label_font.render(f'{bpm}', True, white) # can also do f'BPM:{bpm}'
-    screen.blit(bpm_num_text, (370, HEIGHT-100))
-    bpm_add_rect = pygame.draw.rect(screen, gray, [510, HEIGHT-150, 48, 48], 0, 5)
-    bpm_sub_rect = pygame.draw.rect(screen, gray, [510, HEIGHT-100, 48, 48], 0, 5)
+    screen.blit(bpm_num_text, (340, HEIGHT-100))
+    bpm_add_rect = pygame.draw.rect(screen, gray, [480, HEIGHT-150, 48, 48], 0, 5)
+    bpm_sub_rect = pygame.draw.rect(screen, gray, [480, HEIGHT-100, 48, 48], 0, 5)
+    bpm_add_more_rect = pygame.draw.rect(screen, gray, [530, HEIGHT-150, 48, 48], 0, 5)
+    bpm_sub_more_rect = pygame.draw.rect(screen, gray, [530, HEIGHT-100, 48, 48], 0, 5)
     add_text = medium_font.render('+5', True, white)
     sub_text = medium_font.render('-5', True, white)
-    screen.blit(add_text, (520, HEIGHT-140))
-    screen.blit(sub_text, (520, HEIGHT-90))
+    add_more_text = medium_font.render('+50', True, white)
+    sub_more_text = medium_font.render('-50', True, white)
+    screen.blit(add_text, (490, HEIGHT-140))
+    screen.blit(sub_text, (490, HEIGHT-90))
+    screen.blit(add_more_text, (535, HEIGHT-140))
+    screen.blit(sub_more_text, (535, HEIGHT-90))
 
     # beats stuff
     beats_rect = pygame.draw.rect(screen, gray, [600, HEIGHT-150, 200, 100], 5, 5)
@@ -240,10 +246,16 @@ while run:
     screen.blit(beats_text2, (680, HEIGHT-100))
     beats_add_rect = pygame.draw.rect(screen, gray, [810, HEIGHT-150, 48, 48], 0, 5)
     beats_sub_rect = pygame.draw.rect(screen, gray, [810, HEIGHT-100, 48, 48], 0, 5)
+    beats_add_more_rect = pygame.draw.rect(screen, gray, [860, HEIGHT-150, 48, 48], 0, 5)
+    beats_sub_more_rect = pygame.draw.rect(screen, gray, [860, HEIGHT-100, 48, 48], 0, 5)
     add_text = medium_font.render('+1', True, white)
     sub_text = medium_font.render('-1', True, white)
+    add_more_text = medium_font.render('+10', True, white)
+    sub_more_text = medium_font.render('-10', True, white)
     screen.blit(add_text, (820, HEIGHT-140))
     screen.blit(sub_text, (820, HEIGHT-90))
+    screen.blit(add_more_text, (865, HEIGHT-140))
+    screen.blit(sub_more_text, (865, HEIGHT-90))
 
     # instrument rects
     instrument_rects = []
@@ -252,12 +264,12 @@ while run:
         instrument_rects.append(rect)
 
     # save and load stuff
-    save_menu_button = pygame.draw.rect(screen, gray, [900, HEIGHT-150, 200, 48], 0, 5)
-    load_menu_button = pygame.draw.rect(screen, gray, [900, HEIGHT-100, 200, 48], 0, 5)
+    save_menu_button = pygame.draw.rect(screen, gray, [930, HEIGHT-150, 200, 48], 0, 5)
+    load_menu_button = pygame.draw.rect(screen, gray, [930, HEIGHT-100, 200, 48], 0, 5)
     save_menu_text = label_font.render('Save Beat', True, white)
     load_menu_text = label_font.render('Load Beat', True, white)
-    screen.blit(save_menu_text, (920, HEIGHT-140))
-    screen.blit(load_menu_text, (920, HEIGHT-90))
+    screen.blit(save_menu_text, (950, HEIGHT-140))
+    screen.blit(load_menu_text, (950, HEIGHT-90))
 
     # clear board
     clear_button = pygame.draw.rect(screen, gray, [1150, HEIGHT-150, 200, 100], 0, 5)
@@ -291,14 +303,27 @@ while run:
                     playing = True
             elif bpm_add_rect.collidepoint(event.pos):
                 bpm += 5
+            elif bpm_add_more_rect.collidepoint(event.pos):
+                bpm += 50
             elif bpm_sub_rect.collidepoint(event.pos):
                 bpm -= 5
+            elif bpm_sub_more_rect.collidepoint(event.pos):
+                bpm -= 50
             elif beats_add_rect.collidepoint(event.pos):
                 num_beats += 1
                 for i in range(len(clicked)):
                     clicked[i].append(-1)
+            elif beats_add_more_rect.collidepoint(event.pos):
+                num_beats += 10
+                for i in range(10): # for some reason this loop isn't necessary for subtracting
+                    for i in range(len(clicked)):
+                        clicked[i].append(-1)
             elif beats_sub_rect.collidepoint(event.pos):
                 num_beats -= 1
+                for i in range(len(clicked)):
+                    clicked[i].pop(-1)
+            elif beats_sub_more_rect.collidepoint(event.pos):
+                num_beats -= 10
                 for i in range(len(clicked)):
                     clicked[i].pop(-1)
             elif clear_button.collidepoint(event.pos):
@@ -373,5 +398,3 @@ pygame.quit() # just in case
 
 #TODO: reset BPM button
 #TODO: reset beats button
-#TODO: greatly increase/decrease BPM (by 50?)
-#TODO: greatly increase/decrease beats (by 10?)
